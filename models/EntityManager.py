@@ -9,7 +9,7 @@ class EntityManager:
         ['Director', 'DIRECTED'],
         ['Producer', 'PRODUCED'],
 #       ['Executive Producer', 'PRODUCED'],
-#       ['Key Animation', 'ANIMATED'],
+        ['Key Animation', 'ANIMATED'],
         ['Storyboard', 'ANIMATED'],
         # ['Script', 'WROTE'],
         ['Screenplay', 'WROTE']

@@ -50,19 +50,18 @@ class Media(EntityNode):
         self.cached = neo_dict.get('cached', False)
         self.expanding = neo_dict.get('expanding', False)
         self.loaded = True
-
-    def sync(self, andWrite=False):
-        if self.isCached():
-            logger.info(f'Not syncing cached media {self.mal_id}')
-            return self
-
+    
+    def onSync(self):
         self.title = self.api_response['title']
-        self.cached = True
-        if andWrite:
-            self.write()
 
-        return self
-
-    def write(self):
-        self.touch()
-        self.session.write_transaction(lambda tx: tx.run("MATCH (p:Media {mal_id: $mal_id}) SET p={mal_id: $mal_id, title: $title, cached: $cached, expansion_depth: $expansion_depth, blacklisted: $blacklisted, expanding: $expanding}", mal_id=self.mal_id, title=self.title, cached=self.cached, expansion_depth=self.expansion_depth, blacklisted=self.blacklisted, expanding=self.expanding))
+    def onWrite(self, tx):
+        tx.run("""
+            MATCH (p:Media {mal_id: $mal_id}) 
+            SET p={
+                mal_id: $mal_id,
+                title: $title,
+                cached: $cached,
+                expansion_depth: $expansion_depth,
+                blacklisted: $blacklisted,
+                expanding: $expanding
+            }""", mal_id=self.mal_id, title=self.title, cached=self.cached, expansion_depth=self.expansion_depth, blacklisted=self.blacklisted, expanding=self.expanding)

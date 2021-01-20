@@ -1,6 +1,8 @@
 import logging
+from services.ArgumentService import ArgumentService
 
 BLACKLIST_IDS = [5316, 203]
+FORCE = ArgumentService.parse().force
 
 logger = logging.getLogger('EntityNode')
 class EntityNode:
@@ -24,7 +26,16 @@ class EntityNode:
         return self.entityType.__name__
     
     def collectRelated(self, role):
-        raise Exception('Implement in entity derived class')
+        raise Exception('Implement in derived class')
+
+    def link(self, item, verb):
+        raise Exception('Implement in derived class')
+
+    def onSync(self):
+        raise Exception('Implement in derived class')
+
+    def onWrite(self):
+        raise Exception('Implement in derived class')
 
     def expand(self, depth=1):
         if depth < 1:
@@ -42,7 +53,7 @@ class EntityNode:
             logger.info(f'Skipping reentrant expansion for id {self.mal_id}')
             return
         
-        if self.expansion_depth >= depth:
+        if self.expansion_depth >= depth and not FORCE:
             logger.info(f'Already sufficiently expanded; not re-expanding node {self.mal_id}')
             return
 
@@ -66,11 +77,26 @@ class EntityNode:
             return False
         return bool(record.value())
     
-    def link(self, item, verb):
-        raise Exception('Implement in derived class')
+    def sync(self, andWrite=False):
+        if self.isCached() and not FORCE:
+            logger.info(f'Not syncing cached {self.nodeType} {self.mal_id}')
+            return self
+        
+        self.load()
+        self.onSync()
+        self.cached = True
+
+        if self.blacklisted:
+            logger.warn(f'Blacklisting node {self.mal_id}')
+
+        if andWrite:
+            self.write()
+
+        return self
 
     def touch(self):
         self.session.write_transaction(lambda tx: tx.run(f'MERGE (p:{self.nodeType} {{mal_id: $mal_id}})', mal_id=self.mal_id))
 
     def write(self):
-        raise Exception('You should not try to write an EntityNode')
+        self.touch()
+        self.session.write_transaction(self.onWrite)

@@ -47,13 +47,7 @@ class Person(EntityNode):
     def pp(self):
         print(f'<Person mal_id={self.mal_id} name={self.name}>')
 
-    def sync(self, andWrite=False):
-        if self.isCached():
-            logger.info(f'Not syncing cached person {self.mal_id}')
-            return self
-        
-        self.load()
-
+    def onSync(self):
         if not self.blacklisted:
             raw_about = self.api_response.get('about')
             if raw_about is None:
@@ -68,16 +62,19 @@ class Person(EntityNode):
 
         if not self.blacklisted:
             self.name = self.api_response['name']
-            self.cached = True
         
-        if self.blacklisted:
-            logger.warn(f'Blacklisting node {self.mal_id}')
+    def onWrite(self, tx):
+        tx.run("""
+            MATCH (p:Person {mal_id: $mal_id})
+            SET p={
+                mal_id: $mal_id,
+                name: $name,
+                cached: $cached,
+                expansion_depth: $expansion_depth,
+                blacklisted: $blacklisted,
+                expanding: $expanding
+            }""", mal_id=self.mal_id, name=self.name, cached=self.cached, expansion_depth=self.expansion_depth, blacklisted=self.blacklisted, expanding=self.expanding)
 
-        if andWrite:
-            self.write()
-
-        return self
-
-    def write(self):
-        self.touch()
-        self.session.write_transaction(lambda tx: tx.run("MATCH (p:Person {mal_id: $mal_id}) SET p={mal_id: $mal_id, name: $name, cached: $cached, expansion_depth: $expansion_depth, blacklisted: $blacklisted, expanding: $expanding}", mal_id=self.mal_id, name=self.name, cached=self.cached, expansion_depth=self.expansion_depth, blacklisted=self.blacklisted, expanding=self.expanding))
+    # def write(self):
+    #     self.touch()
+    #     self.session.write_transaction(lambda tx: tx.run("MATCH (p:Person {mal_id: $mal_id}) SET p={mal_id: $mal_id, name: $name, cached: $cached, expansion_depth: $expansion_depth, blacklisted: $blacklisted, expanding: $expanding}", mal_id=self.mal_id, name=self.name, cached=self.cached, expansion_depth=self.expansion_depth, blacklisted=self.blacklisted, expanding=self.expanding))

@@ -18,12 +18,15 @@ class ArgumentService:
             id_group.add_argument('-s', '--studio', metavar='id', help='Id of studio to be updated', type=int)
 
             cls.parser.add_argument('-d', '--depth', help='Depth of related nodes to be retrieved', type=int)
+            cls.parser.add_argument('-f', '--force', help='Force re-fetch', action='store_true')
             cls.parser.add_argument('-v', '--verbose', help='Increased verbosity on client operations', action='store_true')
 
         return cls
 
     @classmethod
     def parse(cls):
+        if not cls.parser:
+            cls.configure()
         if not cls.args:
             args = cls.parser.parse_args()
 
