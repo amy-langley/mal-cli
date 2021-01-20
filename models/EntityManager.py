@@ -9,10 +9,11 @@ class EntityManager:
         ['Director', 'DIRECTED'],
         ['Producer', 'PRODUCED'],
 #       ['Executive Producer', 'PRODUCED'],
-        ['Key Animation', 'ANIMATED'],
-        ['Storyboard', 'ANIMATED'],
+#       ['Key Animation', 'ANIMATED'],
+#       ['Animation Director', 'ANIMATED'],
+#       ['Storyboard', 'ANIMATED'],
         # ['Script', 'WROTE'],
-        ['Screenplay', 'WROTE']
+#       ['Screenplay', 'WROTE']
     ]
 
     @classmethod
@@ -29,7 +30,7 @@ class EntityManager:
         if entity1.blacklisted:
             logger.warn(f'Not linking blacklisted id {entity1.mal_id}')
         if entity2.blacklisted:
-            logger.warn(f'Not linking blacklisted id {entity1.mal_id}')
+            logger.warn(f'Not linking blacklisted id {entity2.mal_id}')
         if entity1.blacklisted or entity2.blacklisted:
             return
 
