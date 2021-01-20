@@ -1,0 +1,7 @@
+**/*.log
+**/__pycache__
+**/__pycache__/**
+**/*.swap
+**/cache/**
+**/nohup.out
+**/.DS_Store
