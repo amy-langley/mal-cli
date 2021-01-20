@@ -36,32 +36,16 @@ class Media(EntityNode):
     def link(self, item, verb):
         self.entityManager.link(item, self, verb)
 
-    def load(self):
-        record = self.session.run(f'MATCH (p:{self.nodeType} {{mal_id: $mal_id}}) RETURN p', mal_id=self.mal_id).single()
-        if record is None:
-            return
-
-        neo_dict = record.data()['p']
-
-        # this approach may become cumbersome if more attributes pile up
-        # but for now it's simple and clear
-        self.expansion_depth = neo_dict.get('expansion_depth', 0)
+    def onLoad(self, neo_dict):
         self.title = neo_dict.get('title')
-        self.cached = neo_dict.get('cached', False)
-        self.expanding = neo_dict.get('expanding', False)
-        self.loaded = True
-    
+
     def onSync(self):
         self.title = self.api_response['title']
 
-    def onWrite(self, tx):
-        tx.run("""
-            MATCH (p:Media {mal_id: $mal_id}) 
-            SET p={
-                mal_id: $mal_id,
-                title: $title,
-                cached: $cached,
-                expansion_depth: $expansion_depth,
-                blacklisted: $blacklisted,
-                expanding: $expanding
-            }""", mal_id=self.mal_id, title=self.title, cached=self.cached, expansion_depth=self.expansion_depth, blacklisted=self.blacklisted, expanding=self.expanding)
+    def pp(self):
+        print(f'<Media mal_id={self.mal_id} title={self.title}>')
+    
+    def prepare(self):
+        return {
+            'title': self.title,
+        }
