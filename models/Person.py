@@ -74,7 +74,3 @@ class Person(EntityNode):
                 blacklisted: $blacklisted,
                 expanding: $expanding
             }""", mal_id=self.mal_id, name=self.name, cached=self.cached, expansion_depth=self.expansion_depth, blacklisted=self.blacklisted, expanding=self.expanding)
-
-    # def write(self):
-    #     self.touch()
-    #     self.session.write_transaction(lambda tx: tx.run("MATCH (p:Person {mal_id: $mal_id}) SET p={mal_id: $mal_id, name: $name, cached: $cached, expansion_depth: $expansion_depth, blacklisted: $blacklisted, expanding: $expanding}", mal_id=self.mal_id, name=self.name, cached=self.cached, expansion_depth=self.expansion_depth, blacklisted=self.blacklisted, expanding=self.expanding))
