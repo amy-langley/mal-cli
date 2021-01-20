@@ -87,10 +87,10 @@ class EntityNode:
         self.expansion_depth = neo_dict.get('expansion_depth', 0)
         self.cached = neo_dict.get('cached', False)
         self.expanding = neo_dict.get('expanding', False)
-        self.loaded = True
 
         self.onLoad(neo_dict)
 
+        self.loaded = True
         return self
 
     def sync(self, andWrite=False):
