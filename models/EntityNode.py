@@ -69,13 +69,6 @@ class EntityNode:
         self.expansion_depth = max(self.expansion_depth, depth)
         self.expanding = False
         self.write()
-
-    def isCached(self):
-        response = self.session.run(f'MATCH (p:{self.nodeType} {{mal_id: $mal_id}}) RETURN p.cached', mal_id=self.mal_id)
-        record = response.single()
-        if record is None:
-            return False
-        return bool(record.value())
     
     def load(self):
         record = self.session.run(f'MATCH (n:{self.nodeType} {{mal_id: $mal_id}}) RETURN n', mal_id=self.mal_id).single()
@@ -94,11 +87,11 @@ class EntityNode:
         return self
 
     def sync(self, andWrite=False):
-        if self.isCached() and not FORCE:
+        self.load()
+
+        if self.cached and not FORCE:
             logger.info(f'Not syncing cached {self.nodeType} {self.mal_id}')
             return self
-        
-        self.load()
 
         if self.blacklisted:
             logger.warn(f'Not syncing blacklisted {self.nodeType} {self.mal_id}')
