@@ -25,7 +25,7 @@ class JikanService:
     configured = False
     interceptor = {}
     jikan_uri = "https://api.jikan.moe/v3"
-    rate_limit = 0
+    rate_limit = 1
 
     @classmethod
     def configure(cls):
