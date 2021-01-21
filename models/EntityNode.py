@@ -38,6 +38,8 @@ class EntityNode(BaseNode):
         return self.entityType.__name__
     
     def expand(self, depth=1):
+        FORCE = ArgumentService.parse().force
+
         if depth < 1:
             logger.debug(f'Max depth reached; not expanding node {self.mal_id}')
             return
