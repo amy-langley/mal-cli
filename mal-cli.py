@@ -24,4 +24,3 @@ with EntityManager.initialize(GraphService.getGraph()):
         for id in args.person:
             p = EntityManager.Person(id)
             p.load()
-            p.pp()

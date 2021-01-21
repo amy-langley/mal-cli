@@ -34,21 +34,18 @@ class Person(EntityNode):
 
     def onSync(self):
         self.name = self.api_response['name']
-        raw_about = self.api_response.get('about')
-        if raw_about is None:
-            raw_about = ''
-        about = raw_about.lower()
+        self.about = self.api_response.get('about')
+        self.birthdate = self.api_response.get('birthday')
 
+        lower_about = (self.about if self.about else '').lower()
         for term in BLACKLIST_TERMS:
-            if term in about:
+            if term in lower_about:
                 logger.warn(f'Found forbidden term "{term}"')
                 self.blacklisted = True
                 break
 
-    def pp(self):
-        print(f'<Person mal_id={self.mal_id} name={self.name}>')
-    
     def prepare(self):
         return {
             'name': self.name,
+            'birthdate': self.birthdate
         }

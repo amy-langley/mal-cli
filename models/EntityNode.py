@@ -2,11 +2,25 @@ import logging
 from services.ArgumentService import ArgumentService
 from services.ConfigService import ConfigService
 
-BLACKLIST_IDS = [5316, 203]
-FORCE = ArgumentService.parse().force
-
 logger = logging.getLogger('EntityNode')
-class EntityNode:
+
+class BaseNode:
+    def collectRelated(self, role):
+        raise Exception('Implement in derived class')
+
+    def link(self, item, verb):
+        raise Exception('Implement in derived class')
+
+    def onLoad(self, dictionary):
+        raise Exception('Implement in derived class')
+
+    def onSync(self):
+        raise Exception('Implement in derived class')
+
+    def prepare(self):
+        raise Exception('Implement in derived class')
+
+class EntityNode(BaseNode):
     def __init__(self, entityManager, entityType, session, mal_id):
         self.entityManager = entityManager
         self.session = session
@@ -23,21 +37,6 @@ class EntityNode:
     def nodeType(self):
         return self.entityType.__name__
     
-    def collectRelated(self, role):
-        raise Exception('Implement in derived class')
-
-    def link(self, item, verb):
-        raise Exception('Implement in derived class')
-
-    def onLoad(self, dictionary):
-        raise Exception('Implement in derived class')
-
-    def onSync(self):
-        raise Exception('Implement in derived class')
-
-    def prepare(self):
-        raise Exception('Implement in derived class')
-
     def expand(self, depth=1):
         if depth < 1:
             logger.debug(f'Max depth reached; not expanding node {self.mal_id}')
@@ -46,7 +45,7 @@ class EntityNode:
         if not self.loaded:
             self.load()
         
-        if self.blacklisted or self.mal_id in BLACKLIST_IDS:
+        if self.blacklisted or self.mal_id in ConfigService.blacklistIds:
             logger.warn(f'Not expanding blacklisted id {self.mal_id}')
             return
 
@@ -89,6 +88,8 @@ class EntityNode:
         return self
 
     def sync(self, andWrite=False):
+        FORCE = ArgumentService.parse().force
+
         self.load() # load from neo4j if node exists
 
         if self.synced and not FORCE:

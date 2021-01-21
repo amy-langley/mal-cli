@@ -41,11 +41,12 @@ class Media(EntityNode):
 
     def onSync(self):
         self.title = self.api_response['title']
+        self.title_english = self.api_response['title_english']
+        self.year_start = self.api_response['aired']['prop']['from']['year']
 
-    def pp(self):
-        print(f'<Media mal_id={self.mal_id} title={self.title}>')
-    
     def prepare(self):
         return {
             'title': self.title,
+            'title_english': self.title_english,
+            'year_start': self.year_start
         }
