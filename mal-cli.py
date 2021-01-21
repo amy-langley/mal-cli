@@ -13,13 +13,12 @@ with EntityManager.initialize(GraphService.getGraph()):
         EntityManager.clear()
 
     if args.operation == 'update':
-        depth = args.depth
         if args.person:
             for id in args.person:
-                EntityManager.Person(id).sync(True).expand(depth)
+                EntityManager.Person(id).sync(True).expand(args.depth)
         if args.media:
             for id in args.media:
-                EntityManager.Media(id).sync(True).expand(depth)
+                EntityManager.Media(id).sync(True).expand(args.depth)
 
     if args.operation == 'load':
         for id in args.person:

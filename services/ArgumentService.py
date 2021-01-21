@@ -31,10 +31,10 @@ class ArgumentService:
             args = cls.parser.parse_args()
 
             if args.operation == 'update' and not (args.person or args. media or args.character or args.studio):
-                parser.error('You must specify an id to update')
+                cls.parser.error('You must specify an id to update')
 
             if args.operation == 'clean' and args.depth:
-                parser.error('You should not specify a depth when clearing')
+                cls.parser.error('You should not specify a depth when clearing')
 
             if args.depth is None:
                 args.depth = 1

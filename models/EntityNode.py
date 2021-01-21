@@ -1,5 +1,6 @@
 import logging
 from services.ArgumentService import ArgumentService
+from services.ConfigService import ConfigService
 
 BLACKLIST_IDS = [5316, 203]
 FORCE = ArgumentService.parse().force
@@ -15,11 +16,8 @@ class EntityNode:
 
         self.mal_id = mal_id
         self.expansion_depth = 0
-        self.cached = False
+        self.synced = False
         self.loaded = False
-
-        if self.mal_id in BLACKLIST_IDS:
-            self.blacklisted = True
 
     @property
     def nodeType(self):
@@ -31,10 +29,13 @@ class EntityNode:
     def link(self, item, verb):
         raise Exception('Implement in derived class')
 
-    def onLoad(self):
+    def onLoad(self, dictionary):
         raise Exception('Implement in derived class')
 
     def onSync(self):
+        raise Exception('Implement in derived class')
+
+    def prepare(self):
         raise Exception('Implement in derived class')
 
     def expand(self, depth=1):
@@ -45,7 +46,7 @@ class EntityNode:
         if not self.loaded:
             self.load()
         
-        if self.mal_id in BLACKLIST_IDS or self.blacklisted:
+        if self.blacklisted or self.mal_id in BLACKLIST_IDS:
             logger.warn(f'Not expanding blacklisted id {self.mal_id}')
             return
 
@@ -78,8 +79,9 @@ class EntityNode:
         neo_dict = record.data()['n']
 
         self.expansion_depth = neo_dict.get('expansion_depth', 0)
-        self.cached = neo_dict.get('cached', False)
+        self.synced = neo_dict.get('synced', False)
         self.expanding = neo_dict.get('expanding', False)
+        self.blacklisted = neo_dict.get('blacklisted', False)
 
         self.onLoad(neo_dict)
 
@@ -87,18 +89,17 @@ class EntityNode:
         return self
 
     def sync(self, andWrite=False):
-        self.load()
+        self.load() # load from neo4j if node exists
 
-        if self.cached and not FORCE:
-            logger.info(f'Not syncing cached {self.nodeType} {self.mal_id}')
+        if self.synced and not FORCE:
+            logger.info(f'Not re-syncing synced {self.nodeType} {self.mal_id}')
             return self
 
-        if self.blacklisted:
-            logger.warn(f'Not syncing blacklisted {self.nodeType} {self.mal_id}')
-            return self
+        if self.mal_id in ConfigService.blacklistIds:
+            self.blacklisted = True
 
-        self.onSync()
-        self.cached = True
+        self.onSync() # ask object to go fetch itself
+        self.synced = True
 
         if self.blacklisted:
             logger.warn(f'Blacklisting node {self.mal_id}')
@@ -120,7 +121,7 @@ class EntityNode:
     def _write(self, tx):
         params = {
             'mal_id': self.mal_id,
-            'cached': self.cached,
+            'synced': self.synced,
             'expansion_depth': self.expansion_depth,
             'blacklisted': self.blacklisted,
             'expanding': self.expanding,
