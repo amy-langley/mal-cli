@@ -8,6 +8,7 @@ neo4j = "*"
 requests = "*"
 jsonpath-ng = "*"
 requests-cache = "*"
+pyyaml = "*"
 
 [dev-packages]
 

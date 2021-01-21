@@ -1,5 +1,7 @@
-from services.ArgumentService import ArgumentService
 from models.EntityManager import EntityManager
+
+from services.ArgumentService import ArgumentService
+from services.ConfigService import ConfigService
 from services.GraphService import GraphService
 from services.LogService import LogService
 

@@ -5,3 +5,4 @@
 **/cache/**
 **/nohup.out
 **/.DS_Store
+config/mal-cli.yml

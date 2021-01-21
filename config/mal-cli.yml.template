@@ -1,0 +1,17 @@
+---
+neo4j:
+  uri: neo4j://cocona.local:7687
+  username: neo4j
+  password: neo4j
+jikan:
+  uri: https://api.jikan.moe/v3
+  throttle: 0.5
+blacklist:
+  ids:
+    - 5316
+    - 203
+  terms:
+    - 'funimation'
+    - ' adv '
+    - 'sentai f'
+...

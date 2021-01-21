@@ -1,8 +1,5 @@
 from neo4j import GraphDatabase
-
-# todo read from yml or env or something
-neo4j_uri = "neo4j://cocona.local:7687"
-driver = GraphDatabase.driver(neo4j_uri, auth=("neo4j", "neo4j"))
+from services.ConfigService import ConfigService
 
 class GraphService:
     graph = None
@@ -10,6 +7,6 @@ class GraphService:
     @classmethod
     def getGraph(cls):
         if not cls.graph:
-            cls.graph = GraphDatabase.driver(neo4j_uri, auth=('neo4j', 'neo4j'))
+            cls.graph = GraphDatabase.driver(ConfigService.neo4jUri, auth=(ConfigService.neo4jUsername, ConfigService.neo4jPassword))
 
         return cls.graph
